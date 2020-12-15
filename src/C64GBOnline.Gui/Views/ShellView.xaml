@@ -1,0 +1,39 @@
+﻿<Window x:Class="C64GBOnline.Gui.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/C64GBOnline.Gui;component/Resources/Commodore.ico"
+        Title="Commodore 64 Game Base Online"
+        Height="800"
+        Width="1200">
+    <Window.InputBindings>
+        <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding ExitCommand}" />
+    </Window.InputBindings>
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo Description="{Binding ProgressBarText}" ProgressState="{Binding ProgressBarState}" ProgressValue="{Binding ProgressBarValue}" />
+    </Window.TaskbarItemInfo>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand}" />
+            </MenuItem>
+        </Menu>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                <ProgressBar Maximum="1" Minimum="0" IsIndeterminate="{Binding ProgressBarIsIndeterminate}" Value="{Binding ProgressBarValue}" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalContentAlignment="Center">
+                <TextBlock Text="{Binding ProgressBarText}" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <ContentControl v:View.Model="{Binding Main}" xmlns:v="clr-namespace:C64GBOnline.WPF;assembly=C64GBOnline.WPF" />
+    </DockPanel>
+</Window>
