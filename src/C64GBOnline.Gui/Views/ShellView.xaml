@@ -1,6 +1,7 @@
 ﻿<Window x:Class="C64GBOnline.Gui.Views.ShellView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:C64GBOnline.WPF;assembly=C64GBOnline.WPF"
         Icon="/C64GBOnline.Gui;component/Resources/Commodore.ico"
         Title="Commodore 64 Game Base Online"
         Height="800"
@@ -10,7 +11,7 @@
     </Window.InputBindings>
 
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo Description="{Binding ProgressBarText}" ProgressState="{Binding ProgressBarState}" ProgressValue="{Binding ProgressBarValue}" />
+        <TaskbarItemInfo Description="{Binding ProgressBarViewModel.Text}" ProgressState="{Binding ProgressBarViewModel.State}" ProgressValue="{Binding ProgressBarViewModel.Value}" />
     </Window.TaskbarItemInfo>
 
     <DockPanel>
@@ -27,13 +28,10 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <StatusBarItem HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                <ProgressBar Maximum="1" Minimum="0" IsIndeterminate="{Binding ProgressBarIsIndeterminate}" Value="{Binding ProgressBarValue}" />
-            </StatusBarItem>
-            <StatusBarItem HorizontalContentAlignment="Center">
-                <TextBlock Text="{Binding ProgressBarText}" />
+                <ContentControl wpf:View.Model="{Binding ProgressBarViewModel}" />
             </StatusBarItem>
         </StatusBar>
 
-        <ContentControl v:View.Model="{Binding Main}" xmlns:v="clr-namespace:C64GBOnline.WPF;assembly=C64GBOnline.WPF" />
+        <ContentControl wpf:View.Model="{Binding MainViewModel}" />
     </DockPanel>
 </Window>

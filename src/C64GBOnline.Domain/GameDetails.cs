@@ -1,37 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace C64GBOnline.Gui.Models
+namespace C64GBOnline.Gui.Domain
 {
-    public sealed class GameDetails
+    public sealed record GameDetails(
+        int? GBVersion,
+        string? Filename,
+        string? Screenshot,
+        string? SID,
+        string Notes,
+        GameInfo GameInfo,
+        VersionInfo VersionInfo
+    )
     {
-        public GameDetails() { } // For LiteDb
-
-        private GameDetails(Dictionary<string, string> info, string notes, GameInfo gameInfo, VersionInfo versionInfo)
-        {
-            GBVersion = int.Parse(info["GB-Version"]);
-            Filename = info[nameof(Filename)];
-            Screenshot = info[nameof(Screenshot)];
-            SID = info[nameof(SID)];
-            Notes = notes;
-            GameInfo = gameInfo;
-            VersionInfo = versionInfo;
-        }
-
-        public int GBVersion { get; set; }
-
-        public string Filename { get; set; }
-
-        public string Screenshot { get; set; }
-
-        public string SID { get; set; }
-
-        public string Notes { get; set; }
-
-        public GameInfo GameInfo { get; set; }
-
-        public VersionInfo VersionInfo { get; set; }
-
         public static GameDetails Create(string info)
         {
             string section = string.Empty;
@@ -77,7 +58,20 @@ namespace C64GBOnline.Gui.Models
                 }
             }
 
-            return new GameDetails(generalInfo, notes, new GameInfo(gameInfo), new VersionInfo(versionInfo));
+            generalInfo.TryGetValue("GB-Version", out string? gbVersionString);
+            bool gbVersionParsed = int.TryParse(gbVersionString, out int gbVersion);
+            generalInfo.TryGetValue(nameof(Filename), out string? filename);
+            generalInfo.TryGetValue(nameof(Screenshot), out string? screenshot);
+            generalInfo.TryGetValue(nameof(SID), out string? sid);
+            return new GameDetails(
+                gbVersionParsed ? gbVersion : (int?)null,
+                filename,
+                screenshot,
+                sid,
+                notes,
+                GameInfo.Create(gameInfo),
+                VersionInfo.Create(versionInfo)
+            );
         }
     }
 }

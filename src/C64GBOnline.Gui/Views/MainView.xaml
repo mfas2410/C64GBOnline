@@ -49,9 +49,9 @@
             </ListBox.GroupStyle>
         </ListBox>
 
-        <Button Grid.Column="0" Grid.Row="3" Command="{Binding Path=StartEmulatorCommand}" Margin="5 0 5 5">Start Emulator</Button>
+        <Button Grid.Column="0" Grid.Row="3" Command="{Binding Path=StartEmulatorCommand}" CommandParameter="{Binding SelectedGame}" Margin="5 0 5 5">Start Emulator</Button>
 
-        <ContentControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Content="{Binding GamesCollection}">
+        <ContentControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Content="{Binding SelectedGame}">
             <ContentControl.ContentTemplate>
                 <DataTemplate>
                     <Border BorderThickness="1" Margin="0 5 5 5">

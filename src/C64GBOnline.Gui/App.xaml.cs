@@ -1,13 +1,18 @@
-﻿using System;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Globalization;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using C64GBOnline.Application;
+using C64GBOnline.Application.Abstractions;
+using C64GBOnline.Gui.Domain;
 using C64GBOnline.Gui.ViewModels;
+using C64GBOnline.Gui.Views;
+using C64GBOnline.Infrastructure;
 using C64GBOnline.WPF;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +21,13 @@ namespace C64GBOnline.Gui
 {
     public sealed partial class App
     {
-        private bool _isShuttingDown;
+        private readonly CancellationTokenSource _stoppingTokenSource = new();
+        private ServiceProvider? _serviceProvider;
 
         static App()
         {
             // This code is used to test the app when using other cultures.
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("da-DK");
+            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new("da-DK");
 
             // Ensure the current culture passed into bindings is the OS culture. By default, WPF uses en-US as the culture, regardless of the system settings.
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
@@ -32,49 +38,68 @@ namespace C64GBOnline.Gui
 
         protected override void OnStartup(StartupEventArgs eventArgs)
         {
-            // Setup dependency injection
-            IServiceCollection collection = new ServiceCollection();
-            collection.AddSingleton(new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build()
-                .Get<AppSettings>(options => options.BindNonPublicProperties = true)
-            );
-            collection.AddSingleton<IEventAggregator, EventAggregator>();
-            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
-            {
-                if (type.FullName is not null && type.FullName.StartsWith(GetType().Namespace + ".ViewModels.") && type.FullName.EndsWith("ViewModel")) collection.AddTransient(type);
-                if (type.FullName is not null && type.FullName.StartsWith(GetType().Namespace + ".Views.") && type.FullName.EndsWith("View")) collection.AddTransient(type);
-            }
-
-            View.ServiceProvider = collection.BuildServiceProvider();
-
             // Setup global unhandled exception handling
-            if (!(Dispatcher is null)) Dispatcher.UnhandledException += OnDispatcherUnhandledException;
-            TaskScheduler.UnobservedTaskException += OnTaskSchedulerUnobservedTaskException;
+            if (Dispatcher is not null) Dispatcher.UnhandledException += (sender, args) => ExceptionHandler.OnDispatcherUnhandledException(sender, args, _stoppingTokenSource.Token);
+            TaskScheduler.UnobservedTaskException += (sender, args) => ExceptionHandler.OnTaskSchedulerUnobservedTaskException(sender, args, _stoppingTokenSource.Token);
+
+            // Read appsettings.json
+            AppSettings appSettings = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().Get<AppSettings>(options => options.BindNonPublicProperties = true);
+
+            // Setup dependency injection
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton(_ => Encoding.GetEncoding("ISO-8859-1"));
+            services.AddSingleton<IFtp>(
+                _ => new Ftp(
+                    appSettings.Host)
+                );
+            services.AddSingleton<IEmulator>(
+                provider => new Emulator(
+                    provider.GetRequiredService<IFtp>(),
+                    provider.GetRequiredService<Encoding>(),
+                    appSettings.LocalDirectory,
+                    appSettings.Emulator,
+                    appSettings.EmulatorExe)
+                );
+            services.AddSingleton<IMusicPlayer>(
+                provider => new MusicPlayer(
+                    provider.GetRequiredService<IFtp>(),
+                    provider.GetRequiredService<Encoding>(),
+                    appSettings.LocalDirectory,
+                    appSettings.MusicPlayer,
+                    appSettings.MusicPlayerExe)
+                );
+            services.AddSingleton<IGameService>(
+                provider => new GameService(
+                    provider.GetRequiredService<IRepository<Game>>(),
+                    provider.GetRequiredService<IFtp>(),
+                    provider.GetRequiredService<Encoding>(),
+                    appSettings.LocalDirectory,
+                    appSettings.RemoteGameDirectory,
+                    appSettings.RemoteMusicDirectory,
+                    appSettings.RemoteScreenshotsDirectory)
+                );
+            services.AddSingleton<IRepository<Game>>(
+                _ => new JsonRepository<Game>(
+                    Path.Combine(appSettings.LocalDirectory, "cache.json"))
+                );
+            services.AddSingleton<MainView>();
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<ProgressBarView>();
+            services.AddSingleton<ProgressBarViewModel>();
+            services.AddSingleton<ShellView>();
+            services.AddSingleton<ShellViewModel>();
+            _serviceProvider = services.BuildServiceProvider();
 
             // Start application
-            View.Start<ShellViewModel>();
+            View.Start<ShellViewModel>(_serviceProvider, _stoppingTokenSource.Token);
             base.OnStartup(eventArgs);
         }
 
         protected override void OnExit(ExitEventArgs eventArgs)
         {
-            _isShuttingDown = true;
-            if (!(Dispatcher is null)) Dispatcher.UnhandledException -= OnDispatcherUnhandledException;
-            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerUnobservedTaskException;
+            _stoppingTokenSource.Cancel();
+            _serviceProvider?.DisposeAsync().AsTask().GetAwaiter().GetResult();
             base.OnExit(eventArgs);
-        }
-
-        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArgs)
-        {
-            if (_isShuttingDown) return;
-            ExceptionHandler.OnDispatcherUnhandledException(sender, eventArgs);
-        }
-
-        private void OnTaskSchedulerUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs eventArgs)
-        {
-            if (_isShuttingDown) return;
-            ExceptionHandler.OnTaskSchedulerUnobservedTaskException(sender, eventArgs);
         }
     }
 }

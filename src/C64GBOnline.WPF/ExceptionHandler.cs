@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -9,24 +10,24 @@ namespace C64GBOnline.WPF
     public static class ExceptionHandler
     {
         [DebuggerStepThrough]
-        public static void OnDispatcherUnhandledException(object _, DispatcherUnhandledExceptionEventArgs eventArgs)
+        public static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArgs, CancellationToken cancellationToken)
         {
             eventArgs.Handled = true;
-            ShowException(eventArgs.Exception);
+            if (!cancellationToken.IsCancellationRequested) ShowException(eventArgs.Exception);
         }
 
         [DebuggerStepThrough]
-        public static void OnTaskSchedulerUnobservedTaskException(object? _, UnobservedTaskExceptionEventArgs eventArgs)
+        public static void OnTaskSchedulerUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs eventArgs, CancellationToken cancellationToken)
         {
             eventArgs.SetObserved();
-            ShowException(eventArgs.Exception);
+            if (!cancellationToken.IsCancellationRequested) ShowException(eventArgs.Exception);
         }
 
         [DebuggerStepThrough]
-        private static void ShowException(Exception? exception)
+        internal static void ShowException(Exception? exception)
         {
             Dispatcher? currentDispatcher = Application.Current?.Dispatcher;
-            if (currentDispatcher == null) return;
+            if (currentDispatcher is null) return;
             if (!currentDispatcher.CheckAccess())
             {
                 currentDispatcher.Invoke(() => ShowException(exception));

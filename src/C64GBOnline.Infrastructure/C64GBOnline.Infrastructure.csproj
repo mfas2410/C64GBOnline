@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WinSCP" Version="5.17.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\C64GBOnline.Application\C64GBOnline.Application.csproj" />
+  </ItemGroup>
+
+</Project>

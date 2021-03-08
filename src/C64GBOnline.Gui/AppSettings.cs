@@ -6,8 +6,18 @@
 
         public string Emulator { get; init; } = string.Empty;
 
-        public string SidPlayer { get; init; } = string.Empty;
+        public string EmulatorExe { get; init; } = string.Empty;
 
-        public string GamesDirectory { get; init; } = string.Empty;
+        public string MusicPlayer { get; init; } = string.Empty;
+
+        public string MusicPlayerExe { get; init; } = string.Empty;
+
+        public string RemoteGameDirectory { get; init; } = string.Empty;
+
+        public string RemoteMusicDirectory { get; init; } = string.Empty;
+
+        public string RemoteScreenshotsDirectory { get; init; } = string.Empty;
+
+        public string LocalDirectory { get; init; } = string.Empty;
     }
 }

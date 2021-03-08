@@ -3,25 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using C64GBOnline.WPF.Abstractions;
 
 namespace C64GBOnline.WPF
 {
-    public interface IHandle { }
-
-    public interface IHandle<in T> : IHandle
-    {
-        void Handle(T message);
-    }
-
-    public interface IEventAggregator : IDisposable
-    {
-        void Subscribe(IHandle handler);
-
-        void Unsubscribe(IHandle handler);
-
-        void Publish(object message);
-    }
-
     public sealed class EventAggregator : IEventAggregator
     {
         private readonly object _padLock = new();
@@ -36,8 +21,8 @@ namespace C64GBOnline.WPF
                 {
                     Type messageType = implementation.GetGenericArguments()[0];
                     MethodInfo methodInfo = implementation.GetMethod("Handle") ?? throw new InvalidOperationException("Missing Handle method");
-                    _subscriptions.TryAdd(messageType, new List<Handler>());
-                    _subscriptions[messageType].Add(new Handler(handler, methodInfo));
+                    _subscriptions.TryAdd(messageType, new());
+                    _subscriptions[messageType].Add(new(handler, methodInfo));
                 }
             }
         }

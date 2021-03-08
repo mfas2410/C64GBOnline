@@ -1,19 +1,34 @@
-﻿using System;
+﻿using C64GBOnline.Application;
+using C64GBOnline.Application.Abstractions;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using C64GBOnline.WPF;
 
-namespace C64GBOnline.Gui.Infrastructure
+namespace C64GBOnline.Infrastructure
 {
-    public sealed class Emulator : PropertyChangedBase, IDisposable
+    public sealed class Emulator : IEmulator, IDisposable
     {
+        private readonly string _emulatorExe;
+        private readonly Encoding _encoding;
+        private readonly IFtp _ftp;
+        private readonly string _localPath;
+        private readonly string _remoteEmulatorPath;
         private readonly CancellationTokenSource _tokenSource = new();
         private string? _path;
         private Process? _process;
+
+        public Emulator(IFtp ftp, Encoding encoding, string localPath, string remoteEmulatorPath, string emulatorExe)
+        {
+            _ftp = ftp;
+            _encoding = encoding;
+            _localPath = localPath;
+            _remoteEmulatorPath = remoteEmulatorPath;
+            _emulatorExe = emulatorExe;
+        }
 
         public bool CanStart => _process is null && !string.IsNullOrEmpty(_path) && File.Exists(_path);
 
@@ -23,19 +38,20 @@ namespace C64GBOnline.Gui.Infrastructure
             _process?.CloseMainWindow();
         }
 
-        public async Task Download(string hostName, string remotePath, string localPath, Encoding encoding)
+        public async Task Initialize()
         {
-            Find(localPath);
+            Directory.CreateDirectory(_localPath);
+            _path = Find(_localPath, _emulatorExe);
             if (CanStart) return;
 
             try
             {
-                await using Stream stream = await Ftp.GetStream(hostName, remotePath);
-                await Archive.Extract(stream, localPath, encoding, _tokenSource.Token);
+                await using Stream stream = await _ftp.GetStream(_remoteEmulatorPath);
+                await Archive.Extract(stream, _localPath, _encoding, _tokenSource.Token);
             }
             catch (OperationCanceledException) { }
 
-            Find(localPath);
+            _path = Find(_localPath, _emulatorExe);
         }
 
         public async Task Start(string? imagePath)
@@ -47,19 +63,13 @@ namespace C64GBOnline.Gui.Infrastructure
             startInfo.RedirectStandardError = true;
             _process = new Process();
             _process.StartInfo = startInfo;
-            Refresh();
             if (_process.Start()) await _process.WaitForExitAsync();
             string stdErr = await _process.StandardError.ReadToEndAsync();
             _process.Dispose();
             _process = null;
-            Refresh();
             if (!string.IsNullOrEmpty(stdErr) && !_tokenSource.IsCancellationRequested) throw new ApplicationException(stdErr);
         }
 
-        private void Find(string localPath)
-        {
-            _path = Directory.GetFiles(localPath, "ccs64.exe", SearchOption.AllDirectories).SingleOrDefault();
-            Refresh();
-        }
+        private static string? Find(string localPath, string emulatorExe) => Directory.GetFiles(localPath, emulatorExe, SearchOption.AllDirectories).SingleOrDefault();
     }
 }

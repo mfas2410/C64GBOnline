@@ -1,4 +1,6 @@
-﻿using System;
+﻿using C64GBOnline.Application;
+using C64GBOnline.Application.Abstractions;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -6,14 +8,28 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace C64GBOnline.Gui.Infrastructure
+namespace C64GBOnline.Infrastructure
 {
-    public sealed class SidPlayer : IAsyncDisposable
+    public sealed class MusicPlayer : IMusicPlayer, IAsyncDisposable
     {
+        private readonly Encoding _encoding;
+        private readonly IFtp _ftp;
+        private readonly string _localPath;
+        private readonly string _playerExe;
+        private readonly string _remotePlayerPath;
         private readonly CancellationTokenSource _tokenSource = new();
         private string? _currentSid;
         private string? _path;
         private Process? _process;
+
+        public MusicPlayer(IFtp ftp, Encoding encoding, string localPath, string remotePlayerPath, string playerExe)
+        {
+            _ftp = ftp;
+            _encoding = encoding;
+            _localPath = localPath;
+            _remotePlayerPath = remotePlayerPath;
+            _playerExe = playerExe;
+        }
 
         private bool CanStart => !string.IsNullOrEmpty(_path) && File.Exists(_path);
 
@@ -23,19 +39,20 @@ namespace C64GBOnline.Gui.Infrastructure
             await Stop();
         }
 
-        public async Task Download(string hostName, string remotePath, string localPath, Encoding encoding)
+        public async Task Initialize()
         {
-            Find(localPath);
+            Directory.CreateDirectory(_localPath);
+            _path = Find(_localPath, _playerExe);
             if (CanStart) return;
 
             try
             {
-                await using Stream stream = await Ftp.GetStream(hostName, remotePath);
-                await Archive.Extract(stream, localPath, encoding, _tokenSource.Token);
+                await using Stream stream = await _ftp.GetStream(_remotePlayerPath);
+                await Archive.Extract(stream, _localPath, _encoding, _tokenSource.Token);
             }
             catch (OperationCanceledException) { }
 
-            Find(localPath);
+            _path = Find(_localPath, _playerExe);
         }
 
         public void Start(string sidPath)
@@ -66,7 +83,7 @@ namespace C64GBOnline.Gui.Infrastructure
             _currentSid = null;
         }
 
-        private void Find(string localPath) => _path = Directory.GetFiles(localPath, "sidplay2w.exe", SearchOption.AllDirectories).SingleOrDefault();
+        private static string? Find(string localPath, string playerExe) => Directory.GetFiles(localPath, playerExe, SearchOption.AllDirectories).SingleOrDefault();
 
         private static void Delete(string? path)
         {
@@ -74,6 +91,8 @@ namespace C64GBOnline.Gui.Infrastructure
             try
             {
                 File.Delete(path);
+                string? dirPath = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dirPath) && !Directory.EnumerateFileSystemEntries(dirPath).Any()) Directory.Delete(dirPath);
             }
             catch (IOException) { }
         }

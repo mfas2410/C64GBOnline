@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace C64GBOnline.WPF
+namespace C64GBOnline.WPF.Abstractions
 {
     public abstract class PropertyChangedBase : INotifyPropertyChanged
     {
@@ -26,7 +26,7 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         protected void NotifyOfPropertyChange([CallerMemberName] string? propertyName = null)
         {
-            if (IsNotifying) PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName ?? string.Empty));
+            if (IsNotifying) PropertyChanged?.Invoke(this, new(propertyName ?? string.Empty));
         }
     }
 }

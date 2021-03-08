@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace C64GBOnline.Gui.Infrastructure
+namespace C64GBOnline.Application
 {
     public static class Archive
     {

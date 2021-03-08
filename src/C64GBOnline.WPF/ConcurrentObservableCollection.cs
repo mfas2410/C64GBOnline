@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -10,7 +9,7 @@ using System.Windows.Threading;
 
 namespace C64GBOnline.WPF
 {
-    public sealed class ConcurrentObservableCollection<T> : ObservableCollection<T>
+    public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     {
         private readonly object _padLock = new();
         private bool _isNotifying = true;
@@ -38,14 +37,8 @@ namespace C64GBOnline.WPF
                 {
                     if (EqualityComparer<bool>.Default.Equals(_isNotifying, value)) return;
                     _isNotifying = value;
-                    OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsNotifying)));
-                    if (!_isNotifying) return;
-                    InvokeOnDispatcher(() =>
-                    {
-                        OnCountPropertyChanged();
-                        OnIndexerPropertyChanged();
-                        OnCollectionReset();
-                    });
+                    OnPropertyChanged(new(nameof(IsNotifying)));
+                    if (_isNotifying) InvokeOnDispatcher(OnAllChanged);
                 }
             }
         }
@@ -56,6 +49,7 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void Add(params T[] items)
         {
+            if (items.Length == 0) return;
             lock (_padLock)
             {
                 int startingIndex = Items.Count;
@@ -64,15 +58,7 @@ namespace C64GBOnline.WPF
                     Items.Add(item);
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(items.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items[0], startingIndex)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnAddOrInsertChanged(items.Length, items[0], startingIndex));
             }
         }
 
@@ -82,14 +68,9 @@ namespace C64GBOnline.WPF
             if (Items.Count == 0) return;
             lock (_padLock)
             {
+                if (Items.Count == 0) return;
                 Items.Clear();
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionReset();
-                });
+                if (_isNotifying) InvokeOnDispatcher(OnAllChanged);
             }
         }
 
@@ -99,6 +80,7 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void Insert(int index, params T[] items)
         {
+            if (items.Length == 0) return;
             lock (_padLock)
             {
                 foreach (T item in items.Reverse())
@@ -106,15 +88,7 @@ namespace C64GBOnline.WPF
                     Items.Insert(index, item);
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(items.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items[0], index)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnAddOrInsertChanged(items.Length, items[0], index));
             }
         }
 
@@ -124,28 +98,22 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void Move(params (int oldIndex, int newIndex)[] indexes)
         {
+            if (indexes.Length == 0) return;
             lock (_padLock)
             {
-                T item = default;
+                T? item = default;
                 var oldIndex = 0;
                 var newIndex = 0;
-                foreach ((int oldIndex, int newIndex) tuple in indexes)
+                foreach ((int oi, int ni) in indexes)
                 {
-                    oldIndex = tuple.oldIndex;
-                    newIndex = tuple.newIndex;
+                    oldIndex = oi;
+                    newIndex = ni;
                     item = Items[oldIndex];
                     Items.RemoveAt(oldIndex);
                     Items.Insert(newIndex, item);
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(indexes.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnMoveChanged(indexes.Length, item, newIndex, oldIndex));
             }
         }
 
@@ -154,12 +122,7 @@ namespace C64GBOnline.WPF
         {
             lock (_padLock)
             {
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionReset();
-                });
+                InvokeOnDispatcher(OnAllChanged);
             }
         }
 
@@ -169,6 +132,7 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void Remove(params T[] items)
         {
+            if (items.Length == 0) return;
             lock (_padLock)
             {
                 foreach (T item in items)
@@ -176,15 +140,7 @@ namespace C64GBOnline.WPF
                     Items.Remove(item);
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(items.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items[0])
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnRemoveChanged(items.Length, items[0]));
             }
         }
 
@@ -194,24 +150,17 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void RemoveAt(params int[] indexes)
         {
+            if (indexes.Length == 0) return;
             lock (_padLock)
             {
-                T changedItem = default;
+                T? changedItem = default;
                 foreach (int index in indexes.OrderByDescending(x => x))
                 {
                     changedItem = Items[index];
                     Items.RemoveAt(index);
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(indexes.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, changedItem)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnRemoveChanged(indexes.Length, changedItem));
             }
         }
 
@@ -221,10 +170,11 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void Replace(params (T, T)[] items)
         {
+            if (items.Length == 0) return;
             lock (_padLock)
             {
-                T newItem = default;
-                T oldItem = default;
+                T? newItem = default;
+                T? oldItem = default;
                 foreach ((T oi, T ni) in items)
                 {
                     oldItem = oi;
@@ -232,14 +182,7 @@ namespace C64GBOnline.WPF
                     Items[Items.IndexOf(oldItem)] = newItem;
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(items.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnReplaceChanged(items.Length, newItem, oldItem));
             }
         }
 
@@ -249,10 +192,11 @@ namespace C64GBOnline.WPF
         [DebuggerStepThrough]
         public void ReplaceAt(params (int, T)[] items)
         {
+            if (items.Length == 0) return;
             lock (_padLock)
             {
-                T newItem = default;
-                T oldItem = default;
+                T? newItem = default;
+                T? oldItem = default;
                 foreach ((int index, T item) in items)
                 {
                     oldItem = Items[index];
@@ -260,17 +204,11 @@ namespace C64GBOnline.WPF
                     Items[index] = item;
                 }
 
-                if (!_isNotifying) return;
-                InvokeOnDispatcher(() =>
-                {
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(items.Length == 1
-                        ? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem)
-                        : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
+                if (_isNotifying) InvokeOnDispatcher(() => OnReplaceChanged(items.Length, newItem, oldItem));
             }
         }
 
+        [DebuggerStepThrough]
         private static void InvokeOnDispatcher(Action action)
         {
             Dispatcher? currentDispatcher = Application.Current?.Dispatcher;
@@ -284,10 +222,59 @@ namespace C64GBOnline.WPF
             }
         }
 
-        private void OnCountPropertyChanged() => OnPropertyChanged(new PropertyChangedEventArgs(nameof(Items.Count)));
+        [DebuggerStepThrough]
+        private void OnAllChanged()
+        {
+            OnCountPropertyChanged();
+            OnIndexerPropertyChanged();
+            OnCollectionReset();
+        }
 
-        private void OnIndexerPropertyChanged() => OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        [DebuggerStepThrough]
+        private void OnAddOrInsertChanged(int changes, T item, int index)
+        {
+            OnCountPropertyChanged();
+            OnIndexerPropertyChanged();
+            OnCollectionChanged(changes == 1
+                ? new(NotifyCollectionChangedAction.Add, item, index)
+                : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
 
-        private void OnCollectionReset() => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        [DebuggerStepThrough]
+        private void OnMoveChanged(int changes, T? item, int newIndex, int oldIndex)
+        {
+            OnIndexerPropertyChanged();
+            OnCollectionChanged(changes == 1
+                ? new(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex)
+                : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        [DebuggerStepThrough]
+        private void OnRemoveChanged(int changes, T? item)
+        {
+            OnCountPropertyChanged();
+            OnIndexerPropertyChanged();
+            OnCollectionChanged(changes == 1
+                ? new(NotifyCollectionChangedAction.Remove, item)
+                : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        [DebuggerStepThrough]
+        private void OnReplaceChanged(int changes, T? newItem, T? oldItem)
+        {
+            OnIndexerPropertyChanged();
+            OnCollectionChanged(changes == 1
+                ? new(NotifyCollectionChangedAction.Replace, newItem, oldItem)
+                : new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        [DebuggerStepThrough]
+        private void OnCountPropertyChanged() => OnPropertyChanged(new(nameof(Items.Count)));
+
+        [DebuggerStepThrough]
+        private void OnIndexerPropertyChanged() => OnPropertyChanged(new("Item[]"));
+
+        [DebuggerStepThrough]
+        private void OnCollectionReset() => OnCollectionChanged(new(NotifyCollectionChangedAction.Reset));
     }
 }
