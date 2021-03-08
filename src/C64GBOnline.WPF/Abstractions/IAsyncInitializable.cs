@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace C64GBOnline.WPF.Abstractions;
 
-namespace C64GBOnline.WPF.Abstractions
+public interface IAsyncInitializable
 {
-    public interface IAsyncInitializable
-    {
-        Task InitializeAsync();
-    }
+    ValueTask InitializeAsync(CancellationToken stoppingToken);
 }

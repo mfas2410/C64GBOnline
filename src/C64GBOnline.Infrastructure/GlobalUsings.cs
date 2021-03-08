@@ -1,0 +1,12 @@
+﻿global using C64GBOnline.Application;
+global using C64GBOnline.Application.Abstractions;
+global using C64GBOnline.Application.Options;
+global using C64GBOnline.Infrastructure.Options;
+global using Microsoft.Extensions.Options;
+global using System.Diagnostics;
+global using System.Linq.Expressions;
+global using System.Net;
+global using System.Reflection;
+global using System.Text;
+global using System.Text.Json;
+global using WinSCP;

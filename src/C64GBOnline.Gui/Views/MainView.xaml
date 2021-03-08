@@ -49,9 +49,9 @@
             </ListBox.GroupStyle>
         </ListBox>
 
-        <Button Grid.Column="0" Grid.Row="3" Command="{Binding Path=StartEmulatorCommand}" Margin="5 0 5 5">Start Emulator</Button>
+        <Button Grid.Column="0" Grid.Row="3" Command="{Binding Path=StartEmulatorCommand}" CommandParameter="{Binding SelectedGame}" Margin="5 0 5 5">Start Emulator</Button>
 
-        <ContentControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Content="{Binding GamesCollection}">
+        <ContentControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Content="{Binding SelectedGame}">
             <ContentControl.ContentTemplate>
                 <DataTemplate>
                     <Border BorderThickness="1" Margin="0 5 5 5">
@@ -77,40 +77,40 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Column="0" Grid.Row="0" Content="Unique ID:" />
-                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Path=GameDetails.GameInfo.UniqueID}" />
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Path=Id}" />
 
                             <Label Grid.Column="0" Grid.Row="1" Content="Name:" />
-                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=GameDetails.GameInfo.Name}" />
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=Name}" />
 
                             <Label Grid.Column="0" Grid.Row="2" Content="Published:" />
-                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=GameDetails.GameInfo.Published}" />
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=Game.GameDetails.GameInfo.Published}" />
 
                             <Label Grid.Column="0" Grid.Row="3" Content="Developer:" />
-                            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Path=GameDetails.GameInfo.Developer}" />
+                            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Path=Game.GameDetails.GameInfo.Developer}" />
 
                             <Label Grid.Column="0" Grid.Row="4" Content="Coding:" />
-                            <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=GameDetails.GameInfo.Coding}" />
+                            <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=Game.GameDetails.GameInfo.Coding}" />
 
                             <Label Grid.Column="0" Grid.Row="5" Content="Graphics:" />
-                            <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=GameDetails.GameInfo.Graphics}" />
+                            <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=Game.GameDetails.GameInfo.Graphics}" />
 
                             <Label Grid.Column="0" Grid.Row="6" Content="Music:" />
-                            <TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding Path=GameDetails.GameInfo.Music}" />
+                            <TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding Path=Game.GameDetails.GameInfo.Music}" />
 
                             <Label Grid.Column="0" Grid.Row="7" Content="Language:" />
-                            <TextBlock Grid.Column="1" Grid.Row="7" Text="{Binding Path=GameDetails.GameInfo.Language}" />
+                            <TextBlock Grid.Column="1" Grid.Row="7" Text="{Binding Path=Game.GameDetails.GameInfo.Language}" />
 
                             <Label Grid.Column="0" Grid.Row="8" Content="Genre:" />
-                            <TextBlock Grid.Column="1" Grid.Row="8" Text="{Binding Path=GameDetails.GameInfo.Genre}" />
+                            <TextBlock Grid.Column="1" Grid.Row="8" Text="{Binding Path=Genre}" />
 
                             <Label Grid.Column="0" Grid.Row="9" Content="Players:" />
-                            <TextBlock Grid.Column="1" Grid.Row="9" Text="{Binding Path=GameDetails.GameInfo.Players}" />
+                            <TextBlock Grid.Column="1" Grid.Row="9" Text="{Binding Path=Game.GameDetails.GameInfo.Players}" />
 
                             <Label Grid.Column="0" Grid.Row="10" Content="Control:" />
-                            <TextBlock Grid.Column="1" Grid.Row="10" Text="{Binding Path=GameDetails.GameInfo.Control}" />
+                            <TextBlock Grid.Column="1" Grid.Row="10" Text="{Binding Path=Game.GameDetails.GameInfo.Control}" />
 
                             <Label Grid.Column="0" Grid.Row="11" Content="Comment:" />
-                            <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding Path=GameDetails.GameInfo.Comment}" />
+                            <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding Path=Game.GameDetails.GameInfo.Comment}" />
 
                             <Image Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="12" Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.SelectedGameImage}" Stretch="Uniform" />
                         </Grid>

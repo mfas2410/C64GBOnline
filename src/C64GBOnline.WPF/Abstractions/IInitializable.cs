@@ -1,7 +1,6 @@
-﻿namespace C64GBOnline.WPF.Abstractions
+﻿namespace C64GBOnline.WPF.Abstractions;
+
+public interface IInitializable
 {
-    public interface IInitializable
-    {
-        void Initialize();
-    }
+    void Initialize();
 }
