@@ -1,4 +1,4 @@
-﻿namespace C64GBOnline.Gui;
+namespace C64GBOnline.Gui;
 
 public sealed partial class App
 {
@@ -24,14 +24,14 @@ public sealed partial class App
         TaskScheduler.UnobservedTaskException += (sender, args) => ExceptionHandler.OnTaskSchedulerUnobservedTaskException(sender, args, _stoppingTokenSource.Token);
 
         // Setup dependency injection
-        IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         IServiceCollection services = new ServiceCollection();
 
-        services.Configure<EmulatorOptions>(configuration.GetSection(nameof(EmulatorOptions)));
-        services.Configure<FtpOptions>(configuration.GetSection(nameof(FtpOptions)));
-        services.Configure<LocalOptions>(configuration.GetSection(nameof(LocalOptions)));
-        services.Configure<MusicPlayerOptions>(configuration.GetSection(nameof(MusicPlayerOptions)));
-        services.Configure<RemoteOptions>(configuration.GetSection(nameof(RemoteOptions)));
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddJsonFile("appsettings.json").Build());
+        services.AddOptions<EmulatorOptions>().BindConfiguration("Emulator").Validate(EmulatorOptions.Validate).ValidateOnStart();
+        services.AddOptions<FtpOptions>().BindConfiguration("Ftp").Validate(FtpOptions.Validate).ValidateOnStart();
+        services.AddOptions<LocalOptions>().BindConfiguration("Local").Validate(LocalOptions.Validate).ValidateOnStart();
+        services.AddOptions<MusicPlayerOptions>().BindConfiguration("MusicPlayer").Validate(MusicPlayerOptions.Validate).ValidateOnStart();
+        services.AddOptions<RemoteOptions>().BindConfiguration("Remote").Validate(RemoteOptions.Validate).ValidateOnStart();
 
         services.AddSingleton(_ => Encoding.GetEncoding("ISO-8859-1"));
         services.AddSingleton<IFtp, Ftp>();
