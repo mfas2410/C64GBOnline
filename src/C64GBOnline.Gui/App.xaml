@@ -1,101 +1,101 @@
 ﻿<Application x:Class="C64GBOnline.Gui.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Application.Resources>
-        <Color x:Key="Black">#FF181C19</Color>
-        <Color x:Key="White">#FFFBF8FC</Color>
-        <Color x:Key="Red">#FF92394C</Color>
-        <Color x:Key="Cyan">#FFB6F9FA</Color>
-        <Color x:Key="Purple">#FFD27CED</Color>
-        <Color x:Key="Green">#FF69CE6F</Color>
-        <Color x:Key="Blue">#FF4F43D8</Color>
-        <Color x:Key="Yellow">#FFFAFA8B</Color>
-        <Color x:Key="Orange">#FFD79B5B</Color>
-        <Color x:Key="Brown">#FF7E5207</Color>
-        <Color x:Key="LightRed">#FFEE829F</Color>
-        <Color x:Key="DarkGrey">#FF565653</Color>
-        <Color x:Key="Grey">#FFA3A6A7</Color>
-        <Color x:Key="LightGreen">#FFB6FABF</Color>
-        <Color x:Key="LightBlue">#FFA396FF</Color>
-        <Color x:Key="LightGrey">#FFEEE8E7</Color>
+  <Application.Resources>
+    <Color x:Key="Black">#FF181C19</Color>
+    <Color x:Key="White">#FFFBF8FC</Color>
+    <Color x:Key="Red">#FF92394C</Color>
+    <Color x:Key="Cyan">#FFB6F9FA</Color>
+    <Color x:Key="Purple">#FFD27CED</Color>
+    <Color x:Key="Green">#FF69CE6F</Color>
+    <Color x:Key="Blue">#FF4F43D8</Color>
+    <Color x:Key="Yellow">#FFFAFA8B</Color>
+    <Color x:Key="Orange">#FFD79B5B</Color>
+    <Color x:Key="Brown">#FF7E5207</Color>
+    <Color x:Key="LightRed">#FFEE829F</Color>
+    <Color x:Key="DarkGrey">#FF565653</Color>
+    <Color x:Key="Grey">#FFA3A6A7</Color>
+    <Color x:Key="LightGreen">#FFB6FABF</Color>
+    <Color x:Key="LightBlue">#FFA396FF</Color>
+    <Color x:Key="LightGrey">#FFEEE8E7</Color>
 
-        <SolidColorBrush x:Key="BackgroundColorBrush" Color="{StaticResource Blue}" />
-        <SolidColorBrush x:Key="BackgroundShellColorBrush" Color="{StaticResource LightBlue}" />
-        <SolidColorBrush x:Key="DarkBorderColorBrush" Color="{StaticResource Blue}" />
-        <SolidColorBrush x:Key="LightBorderColorBrush" Color="{StaticResource LightBlue}" />
-        <SolidColorBrush x:Key="ProgressBarColorBrush" Color="{StaticResource Green}" />
-        <SolidColorBrush x:Key="TextColorBrush" Color="{StaticResource LightBlue}" />
-        <SolidColorBrush x:Key="TextHighlightColorBrush" Color="{StaticResource White}" />
+    <SolidColorBrush x:Key="BackgroundColorBrush" Color="{StaticResource Blue}" />
+    <SolidColorBrush x:Key="BackgroundShellColorBrush" Color="{StaticResource LightBlue}" />
+    <SolidColorBrush x:Key="DarkBorderColorBrush" Color="{StaticResource Blue}" />
+    <SolidColorBrush x:Key="LightBorderColorBrush" Color="{StaticResource LightBlue}" />
+    <SolidColorBrush x:Key="ProgressBarColorBrush" Color="{StaticResource Green}" />
+    <SolidColorBrush x:Key="TextColorBrush" Color="{StaticResource LightBlue}" />
+    <SolidColorBrush x:Key="TextHighlightColorBrush" Color="{StaticResource White}" />
 
-        <FontFamily x:Key="C64ProMono">./Resources/#C64 Pro Mono</FontFamily>
+    <FontFamily x:Key="C64ProMono">./Resources/#C64 Pro Mono</FontFamily>
 
-        <Style TargetType="Border">
-            <Setter Property="Background">
-                <Setter.Value>
-                    <SolidColorBrush Opacity="0" />
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderBrush" Value="{StaticResource LightBorderColorBrush}" />
-        </Style>
+    <Style TargetType="Border">
+      <Setter Property="Background">
+        <Setter.Value>
+          <SolidColorBrush Opacity="0" />
+        </Setter.Value>
+      </Setter>
+      <Setter Property="BorderBrush" Value="{StaticResource LightBorderColorBrush}" />
+    </Style>
 
-        <Style TargetType="Grid">
-            <Setter Property="Background" Value="{StaticResource BackgroundColorBrush}" />
-        </Style>
+    <Style TargetType="Grid">
+      <Setter Property="Background" Value="{StaticResource BackgroundColorBrush}" />
+    </Style>
 
-        <Style TargetType="Label">
-            <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
-            <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
-        </Style>
+    <Style TargetType="Label">
+      <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
+      <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
+    </Style>
 
-        <Style TargetType="ListBox">
-            <Setter Property="Background">
-                <Setter.Value>
-                    <SolidColorBrush Opacity="0" />
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderBrush" Value="{StaticResource LightBorderColorBrush}" />
-        </Style>
+    <Style TargetType="ListBox">
+      <Setter Property="Background">
+        <Setter.Value>
+          <SolidColorBrush Opacity="0" />
+        </Setter.Value>
+      </Setter>
+      <Setter Property="BorderBrush" Value="{StaticResource LightBorderColorBrush}" />
+    </Style>
 
-        <Style TargetType="Menu">
-            <Setter Property="Background" Value="{StaticResource BackgroundColorBrush}" />
-            <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="Width" Value="Auto" />
-        </Style>
+    <Style TargetType="Menu">
+      <Setter Property="Background" Value="{StaticResource BackgroundColorBrush}" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="Width" Value="Auto" />
+    </Style>
 
-        <Style TargetType="MenuItem">
-            <Setter Property="BorderBrush" Value="{StaticResource DarkBorderColorBrush}" />
-            <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
-            <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
-            <Style.Triggers>
-                <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
-                </Trigger>
-                <Trigger Property="IsSubmenuOpen" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+    <Style TargetType="MenuItem">
+      <Setter Property="BorderBrush" Value="{StaticResource DarkBorderColorBrush}" />
+      <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
+      <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
+      <Style.Triggers>
+        <Trigger Property="IsHighlighted" Value="True">
+          <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
+        </Trigger>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
+        </Trigger>
+        <Trigger Property="IsSubmenuOpen" Value="True">
+          <Setter Property="Foreground" Value="{StaticResource TextHighlightColorBrush}" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
 
-        <Style TargetType="ProgressBar">
-            <Setter Property="Foreground" Value="{StaticResource ProgressBarColorBrush}" />
-        </Style>
+    <Style TargetType="ProgressBar">
+      <Setter Property="Foreground" Value="{StaticResource ProgressBarColorBrush}" />
+    </Style>
 
-        <Style TargetType="StatusBar">
-            <Setter Property="VerticalAlignment" Value="Bottom" />
-        </Style>
+    <Style TargetType="StatusBar">
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
 
-        <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
-            <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
+    <Style TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
+      <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
-            <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
-        </Style>
-    </Application.Resources>
+    <Style TargetType="TextBox">
+      <Setter Property="FontFamily" Value="{StaticResource C64ProMono}" />
+      <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
+    </Style>
+  </Application.Resources>
 </Application>

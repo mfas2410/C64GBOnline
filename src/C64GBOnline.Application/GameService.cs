@@ -5,8 +5,8 @@ public sealed class GameService : IGameService
     private readonly Encoding _encoding;
     private readonly IRepository<Game> _localGamesRepository;
     private readonly string _localPath;
-    private readonly IFtp _remoteGameRepository;
     private readonly string _remoteGameDirectory;
+    private readonly IFtp _remoteGameRepository;
     private readonly string _remoteMusicDirectory;
     private readonly string _remoteScreenshotsDirectory;
 
@@ -76,7 +76,7 @@ public sealed class GameService : IGameService
 
     public async Task<IEnumerable<FtpFileInfo>> GetRemoteGames(CancellationToken cancellationToken)
         => (await _remoteGameRepository.GetDirectoryListing(_remoteGameDirectory, "*.zip", cancellationToken))
-        .Select(x => new FtpFileInfo(x.FullName, x.LastWriteTime, x.Length));
+            .Select(x => new FtpFileInfo(x.FullName, x.LastWriteTime, x.Length));
 
     public async Task<Game> UpdateGameDetails(Game game, CancellationToken cancellationToken)
     {

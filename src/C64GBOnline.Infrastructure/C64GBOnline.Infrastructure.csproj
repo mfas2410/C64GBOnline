@@ -2,13 +2,12 @@
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WinSCP" Version="5.21.6" />
+    <PackageReference Include="WinSCP" Version="6.3.6" />
   </ItemGroup>
 
   <ItemGroup>

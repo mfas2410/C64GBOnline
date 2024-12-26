@@ -2,7 +2,7 @@
 
 public class ConcurrentObservableCollection<T> : ObservableCollection<T>
 {
-    private readonly object _padLock = new();
+    private readonly Lock _padLock = new();
     private bool _isNotifying = true;
 
     [DebuggerStepThrough]
@@ -35,7 +35,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     }
 
     [DebuggerStepThrough]
-    public new void Add(T item) => Add(new[] { item });
+    public new void Add(T item) => Add([item]);
 
     [DebuggerStepThrough]
     public void Add(params T[] items)
@@ -66,7 +66,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     }
 
     [DebuggerStepThrough]
-    public new void Insert(int index, T item) => Insert(index, new[] { item });
+    public new void Insert(int index, T item) => Insert(index, [item]);
 
     [DebuggerStepThrough]
     public void Insert(int index, params T[] items)
@@ -118,7 +118,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     }
 
     [DebuggerStepThrough]
-    public new void Remove(T item) => Remove(new[] { item });
+    public new void Remove(T item) => Remove([item]);
 
     [DebuggerStepThrough]
     public void Remove(params T[] items)
@@ -136,7 +136,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     }
 
     [DebuggerStepThrough]
-    public new void RemoveAt(int index) => RemoveAt(new[] { index });
+    public new void RemoveAt(int index) => RemoveAt([index]);
 
     [DebuggerStepThrough]
     public void RemoveAt(params int[] indexes)

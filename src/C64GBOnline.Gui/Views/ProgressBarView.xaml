@@ -1,15 +1,16 @@
 ﻿<UserControl x:Class="C64GBOnline.Gui.Views.ProgressBarView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
 
-        <ProgressBar Grid.Column="0" Grid.Row="0" Maximum="1" Minimum="0" IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding Value}" />
-        <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Text}" />
-    </Grid>
+    <ProgressBar Grid.Column="0" Grid.Row="0" Maximum="1" Minimum="0" IsIndeterminate="{Binding IsIndeterminate}"
+                 Value="{Binding Value}" />
+    <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Text}" />
+  </Grid>
 </UserControl>

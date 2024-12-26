@@ -6,43 +6,45 @@
         Title="Commodore 64 Game Base Online"
         Height="1056"
         Width="1608">
-    <Window.InputBindings>
-        <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding ExitCommand}" />
-    </Window.InputBindings>
+  <Window.InputBindings>
+    <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding ExitCommand}" />
+  </Window.InputBindings>
 
-    <Window.TaskbarItemInfo>
-        <TaskbarItemInfo Description="{Binding ProgressBarViewModel.Text}" ProgressState="{Binding ProgressBarViewModel.State}" ProgressValue="{Binding ProgressBarViewModel.Value}" />
-    </Window.TaskbarItemInfo>
+  <Window.TaskbarItemInfo>
+    <TaskbarItemInfo Description="{Binding ProgressBarViewModel.Text}"
+                     ProgressState="{Binding ProgressBarViewModel.State}"
+                     ProgressValue="{Binding ProgressBarViewModel.Value}" />
+  </Window.TaskbarItemInfo>
 
-    <Grid Background="{StaticResource BackgroundShellColorBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="164*" />
-            <ColumnDefinition Width="1280*" />
-            <ColumnDefinition Width="164*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="128*" />
-            <RowDefinition Height="800*" />
-            <RowDefinition Height="128*" />
-        </Grid.RowDefinitions>
+  <Grid Background="{StaticResource BackgroundShellColorBrush}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="164*" />
+      <ColumnDefinition Width="1280*" />
+      <ColumnDefinition Width="164*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="128*" />
+      <RowDefinition Height="800*" />
+      <RowDefinition Height="128*" />
+    </Grid.RowDefinitions>
 
-        <Menu Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand}" />
-            </MenuItem>
-        </Menu>
+    <Menu Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0">
+      <MenuItem Header="_File">
+        <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand}" />
+      </MenuItem>
+    </Menu>
 
-        <ContentControl Grid.Column="1" Grid.Row="1" wpf:View.Model="{Binding MainViewModel}" />
+    <ContentControl Grid.Column="1" Grid.Row="1" wpf:View.Model="{Binding MainViewModel}" />
 
-        <StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2">
-            <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid />
-                </ItemsPanelTemplate>
-            </StatusBar.ItemsPanel>
-            <StatusBarItem HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                <ContentControl wpf:View.Model="{Binding ProgressBarViewModel}" />
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+    <StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2">
+      <StatusBar.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Grid />
+        </ItemsPanelTemplate>
+      </StatusBar.ItemsPanel>
+      <StatusBarItem HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <ContentControl wpf:View.Model="{Binding ProgressBarViewModel}" />
+      </StatusBarItem>
+    </StatusBar>
+  </Grid>
 </Window>

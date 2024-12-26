@@ -13,7 +13,7 @@ public sealed class MainViewModel : PropertyChangedBase, IAsyncInitializable, ID
     private CancellationTokenSource? _getGameResourcesTokenSource;
     private GameModel? _selectedGame;
     private BitmapImage? _selectedGameImage;
-    private string? _selectedGroup = null;
+    private string? _selectedGroup;
     private ICommand? _startEmulatorCommand;
 
     public MainViewModel(IGameService gameService, IEmulator emulator, IMusicPlayer musicPlayer, ProgressBarViewModel progressBarViewModel)

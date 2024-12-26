@@ -1,17 +1,11 @@
 ﻿namespace C64GBOnline.WPF;
 
-public sealed class RelayCommand<T> : ICommand
+[method: DebuggerStepThrough]
+public sealed class RelayCommand<T>(Func<T, Task> execute, Func<T, Task<bool>>? canExecute = null) : ICommand
 {
-    private readonly Func<T, Task<bool>> _canExecute;
-    private readonly Func<T, Task> _execute;
+    private readonly Func<T, Task<bool>> _canExecute = canExecute ?? (_ => Task.FromResult(true));
+    private readonly Func<T, Task> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
     private Task? _task;
-
-    [DebuggerStepThrough]
-    public RelayCommand(Func<T, Task> execute, Func<T, Task<bool>>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute ?? (_ => Task.FromResult(true));
-    }
 
     public event EventHandler? CanExecuteChanged
     {
@@ -25,7 +19,7 @@ public sealed class RelayCommand<T> : ICommand
         if (_task?.IsCompleted == false) return false;
         Task<bool> task = Task.Factory.StartNew(async () => await _canExecute((T)parameter!), TaskCreationOptions.AttachedToParent).Unwrap();
         task.Wait();
-        return task.IsCompletedSuccessfully && task.Result;
+        return task is { IsCompletedSuccessfully: true, Result: true };
     }
 
     [DebuggerStepThrough]

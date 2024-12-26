@@ -8,7 +8,7 @@ public sealed partial class App
     static App()
     {
         // This code is used to test the app when using other cultures.
-        Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new("da-DK");
+        Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("da-DK");
 
         // Ensure the current culture passed into bindings is the OS culture. By default, WPF uses en-US as the culture, regardless of the system settings.
         FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));

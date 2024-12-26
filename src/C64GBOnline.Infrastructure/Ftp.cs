@@ -1,4 +1,6 @@
-﻿namespace C64GBOnline.Infrastructure;
+﻿using EnumerationOptions = WinSCP.EnumerationOptions;
+
+namespace C64GBOnline.Infrastructure;
 
 public sealed class Ftp : IFtp
 {
@@ -12,7 +14,7 @@ public sealed class Ftp : IFtp
         {
             using Session session = new();
             session.Open(new SessionOptions { HostName = _host, Protocol = Protocol.Ftp, UserName = "anonymous" });
-            IEnumerable<RemoteFileInfo> remoteFileInfos = session.EnumerateRemoteFiles(path, mask, WinSCP.EnumerationOptions.AllDirectories | WinSCP.EnumerationOptions.EnumerateDirectories).Where(remoteFileInfo => !remoteFileInfo.IsDirectory);
+            IEnumerable<RemoteFileInfo> remoteFileInfos = session.EnumerateRemoteFiles(path, mask, EnumerationOptions.AllDirectories | EnumerationOptions.EnumerateDirectories).Where(remoteFileInfo => !remoteFileInfo.IsDirectory);
             return remoteFileInfos.Select(remoteFileInfo => (remoteFileInfo.FullName, remoteFileInfo.LastWriteTime, remoteFileInfo.Length)).ToList();
         }, cancellationToken);
 

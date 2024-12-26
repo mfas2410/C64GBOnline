@@ -2,8 +2,8 @@
 
 public sealed class EventAggregator : IEventAggregator
 {
-    private readonly object _padLock = new();
-    private readonly IDictionary<Type, List<Handler>> _subscriptions = new Dictionary<Type, List<Handler>>();
+    private readonly Lock _padLock = new();
+    private readonly Dictionary<Type, List<Handler>> _subscriptions = new();
 
     [DebuggerStepThrough]
     public void Subscribe(IHandle handler)
@@ -14,7 +14,7 @@ public sealed class EventAggregator : IEventAggregator
             {
                 Type messageType = implementation.GetGenericArguments()[0];
                 MethodInfo methodInfo = implementation.GetMethod("Handle") ?? throw new InvalidOperationException("Missing Handle method");
-                _subscriptions.TryAdd(messageType, new List<Handler>());
+                _subscriptions.TryAdd(messageType, []);
                 _subscriptions[messageType].Add(new Handler(handler, methodInfo));
             }
         }
@@ -30,8 +30,9 @@ public sealed class EventAggregator : IEventAggregator
                 Type messageType = implementation.GetGenericArguments()[0];
                 foreach (Handler registeredHandler in _subscriptions[messageType].ToList().Where(registeredHandler => registeredHandler.Instance?.Equals(handler) ?? false))
                 {
-                    _subscriptions[messageType].Remove(registeredHandler);
-                    if (!_subscriptions[messageType].Any()) _subscriptions.Remove(messageType);
+                    List<Handler> subscription = _subscriptions[messageType];
+                    subscription.Remove(registeredHandler);
+                    if (subscription.Count == 0) _subscriptions.Remove(messageType);
                 }
             }
         }
@@ -62,17 +63,10 @@ public sealed class EventAggregator : IEventAggregator
         }
     }
 
-    private sealed class Handler : IDisposable
+    private sealed class Handler(IHandle handler, MethodInfo methodInfo) : IDisposable
     {
-        private MethodInfo? _methodInfo;
-
-        public Handler(IHandle handler, MethodInfo methodInfo)
-        {
-            Instance = handler ?? throw new ArgumentNullException(nameof(handler));
-            _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
-        }
-
-        public IHandle? Instance { get; private set; }
+        private MethodInfo? _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
+        public IHandle? Instance { get; private set; } = handler ?? throw new ArgumentNullException(nameof(handler));
 
         public void Dispose()
         {
@@ -80,6 +74,6 @@ public sealed class EventAggregator : IEventAggregator
             Instance = null;
         }
 
-        public void Invoke(object message) => _methodInfo?.Invoke(Instance, new[] { message });
+        public void Invoke(object message) => _methodInfo?.Invoke(Instance, [message]);
     }
 }

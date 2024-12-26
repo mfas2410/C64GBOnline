@@ -30,19 +30,19 @@ public sealed record GameInfo(
         info.TryGetValue(nameof(Control), out string? control);
         info.TryGetValue(nameof(Comment), out string? comment);
         GameInfo gameInfo = new(
-                        string.IsNullOrEmpty(uniqueId) ? null : long.Parse(uniqueId),
-                        name,
-                        published,
-                        developer,
-                        coding,
-                        graphics,
-                        music,
-                        language,
-                        genre,
-                        players,
-                        control,
-                        comment
-                    );
+            string.IsNullOrEmpty(uniqueId) ? null : long.Parse(uniqueId),
+            name,
+            published,
+            developer,
+            coding,
+            graphics,
+            music,
+            language,
+            genre,
+            players,
+            control,
+            comment
+        );
         return gameInfo;
     }
 }

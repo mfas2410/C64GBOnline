@@ -4,7 +4,7 @@ public class ConcurrentObservableCollectionTests
 {
     private readonly ConcurrentObservableCollection<string> _sut;
 
-    public ConcurrentObservableCollectionTests() => _sut = new();
+    public ConcurrentObservableCollectionTests() => _sut = new ConcurrentObservableCollection<string>();
 
     [Fact]
     public void New_WhenNewingUpCollection_ThenCollectionIsEmpty()

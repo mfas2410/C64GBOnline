@@ -20,14 +20,14 @@ public sealed class Emulator : IEmulator, IDisposable
         _emulatorExe = emulatorOptions.Value.Exe;
     }
 
-    public bool CanStart
-        => _process is null && !string.IsNullOrEmpty(_path) && File.Exists(_path);
-
     public void Dispose()
     {
         _tokenSource.Cancel();
         _process?.CloseMainWindow();
     }
+
+    public bool CanStart
+        => _process is null && !string.IsNullOrEmpty(_path) && File.Exists(_path);
 
     public async Task Initialize()
     {

@@ -3,8 +3,8 @@
 public sealed class JsonRepository<T> : IRepository<T>
 {
     private readonly Dictionary<object, T> _dictionary = new();
-    private PropertyInfo? _idColumn;
     private readonly string _repositoryFullName;
+    private PropertyInfo? _idColumn;
     private bool _isInitialized;
 
     public JsonRepository(IOptions<LocalOptions> options)
@@ -29,7 +29,7 @@ public sealed class JsonRepository<T> : IRepository<T>
     {
         if (!_isInitialized) throw new InvalidOperationException("Not initialized");
         await using FileStream fileStream = new(_repositoryFullName, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, FileOptions.Asynchronous);
-        await JsonSerializer.SerializeAsync(fileStream, _dictionary.Values.ToList(), new JsonSerializerOptions() { WriteIndented = true });
+        await JsonSerializer.SerializeAsync(fileStream, _dictionary.Values.ToList(), new JsonSerializerOptions { WriteIndented = true });
     }
 
     public IEnumerable<T> Get()
@@ -51,9 +51,9 @@ public sealed class JsonRepository<T> : IRepository<T>
 
         try
         {
-            _idColumn = JsonRepository<T>.GetPropertyFromExpression(idColumn);
+            _idColumn = GetPropertyFromExpression(idColumn);
             await using FileStream fileStream = new(_repositoryFullName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            List<T>? _list = await JsonSerializer.DeserializeAsync<List<T>>(fileStream) ?? new();
+            List<T>? _list = await JsonSerializer.DeserializeAsync<List<T>>(fileStream) ?? new List<T>();
             foreach (T item in _list)
             {
                 object? key = _idColumn.GetValue(item);
@@ -80,7 +80,9 @@ public sealed class JsonRepository<T> : IRepository<T>
     {
         MemberExpression? memberExpression = propertyLambda.Body is UnaryExpression unaryExpression
             ? unaryExpression.Operand is MemberExpression expression1 ? expression1 : throw new InvalidCastException(nameof(propertyLambda))
-            : propertyLambda.Body is MemberExpression expression2 ? expression2 : throw new InvalidCastException(nameof(propertyLambda));
+            : propertyLambda.Body is MemberExpression expression2
+                ? expression2
+                : throw new InvalidCastException(nameof(propertyLambda));
         return (PropertyInfo)memberExpression.Member;
     }
 }
